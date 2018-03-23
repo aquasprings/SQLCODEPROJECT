@@ -1,0 +1,68 @@
+use db01test01
+create proc sp_login_verify
+@userid varchar(50),
+@password varchar(50),
+@flaga int out,
+@flagb int out
+as
+begin 
+set @flaga=(select count(Userid) from tbl_Login1_t4 where Userid=@userid and Pwd=@password and Ukey=12345)
+set @flagb=(select count(Userid) from tbl_Login1_t4 where Userid=@userid and Pwd=@password and Ukey=54321)
+end
+select *from tbl_Login1_t4
+drop proc sp_login_verify
+exec  sp_login_verify 'SE-00001','admin123',12345,0,0
+select count(Userid) from tbl_Login1_t4 where Userid='BE-00005' and Pwd='admin234' and Ukey=54321
+
+create proc  sp_signupcheck
+@Username varchar(50),
+@count int out,
+@cnt int out
+as
+begin
+set @count=(select count(Userid) from tbl_Login1_t4  where Username=@Username and Ukey=12345)
+set @cnt=(select count(Userid) from tbl_Login1_t4 where  Username=@Username and Ukey=54321)
+end
+
+drop proc sp_signupcheck
+create proc  sp_signupcheck
+@Username varchar(50),
+@count int out
+
+as
+begin
+set @count=(select count(*) from tbl_Login1_t4 where Username=@Username and Ukey= (select Ukey from tbl_Login1_t4 where Username=@Username))
+
+end
+select *from register_team4
+create proc sp_Loginsubs
+(@Subscriberid bigint,
+@password varchar(50),
+@flags int out)
+as
+begin
+set @flags=(select count(subid) from register_team4 where subid=@Subscriberid and dpass=@password)
+end
+drop proc sp_Loginsubs
+
+alter proc sp_fetchname_team4
+@subid bigint,
+@flag varchar(80) out
+as 
+begin
+set @flag=(select name from register_team4 where subid=@subid)
+end;
+
+
+
+select * from register_team4
+exec sp_fetchname 10000003
+drop proc sp_fetchname
+select name from register_team4 where subid=10000007
+select count(subid) from register_team4 where subid=10000005 and dpass='ea1AfB2d'
+select @name=(select name from register_team4 where subid=10000005)
+
+declare @name varchar
+set @name=(select name from register_team4 where subid=10000005)
+
+select * from register_team4
