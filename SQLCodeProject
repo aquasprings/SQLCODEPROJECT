@@ -1,0 +1,298 @@
+use DB04TMS170_1718
+
+select * from subplan_team4
+select * from register_team4
+select * from tariff_team4
+create table register_team4
+(	
+	name varchar(50),
+	age int,
+	addr varchar(50),
+	city varchar(50),
+	substate varchar(50),
+	simno bigint,
+	subid  int identity(10000000,1) primary key ,
+	dpass varchar(50),
+	emailid varchar(50) CHECK(emailid LIKE '%_@%_.com'),
+	contactno varchar(15) CHECK(len(contactno)=10),
+	--planid int foreign key references tariff_team4(planid) ,
+	plans varchar(100) ,
+	status varchar(50) check(status IN('ACTIVE', 'INACTIVE')) default('INACTIVE'),
+	simtype varchar(50) check(simtype IN('POSTPAID', 'PREPAID')),
+	balance int default(0),
+	timestamp date 
+
+);
+
+create table tariff_team4
+(
+planid int identity(100,1) primary key,
+planname varchar(50),
+plancost int,
+plandetails varchar(200))
+
+create table subplan_team4
+(
+	serialno int identity(1,1) primary key,
+	suid int ,
+	plan_id int foreign key references tariff_team4(planid),
+	stat varchar(50) check (stat in ('Active', 'Inactive')) default 'Inactive' 
+)
+drop table subplan_team4
+drop table tariff_team4
+select * from subplan_team4
+truncate table subplan_team4
+
+create proc sp_subplan_team4
+@s bigint, @p int 
+as
+begin
+insert into subplan_team4 (suid,plan_id,stat) values (@s,@p,'Active')
+end
+
+create proc sp_viewtariff_team4
+as
+begin
+select * from tariff_team4
+end
+
+drop proc sp_viewtariff_team4
+
+insert into tariff_team4 (planname,plancost, plandetails)values ('Voice', 100, 'Upto 1000 minutes of ON-NET calling & 200 minutes of OFF-NET calling for 28 days')
+insert into tariff_team4 (planname,plancost, plandetails)values ('Voice', 200, 'Upto 2000 minutes of ON-NET calling & 500 minutes of OFF-NET calling for 60 days')
+insert into tariff_team4 (planname,plancost, plandetails)values ('Voice', 500, 'Upto 5000 minutes of ON-NET calling & 1500 minutes of OFF-NET calling for 80 days')
+insert into tariff_team4 (planname,plancost, plandetails)values ('Data', 200, 'Upto 10 GB of 4G Data for 28 days')
+insert into tariff_team4 (planname,plancost, plandetails)values ('Data', 300, 'Upto 50 GB of 4G Data for 60 days')
+insert into tariff_team4 (planname,plancost, plandetails)values ('Data', 500, 'Upto 100 GB of 4G-Data for 80 days')
+insert into tariff_team4 (planname,plancost, plandetails)values ('SMS', 25, 'Upto 100 SMS per day for 10 days')
+insert into tariff_team4 (planname,plancost, plandetails)values ('SMS', 55, 'Upto 100 SMS per day for 28 days')
+insert into tariff_team4 (planname,plancost, plandetails)values ('COMBO',499, 'Upto 3000 minutes of ON-NET calling , 500 minutes of OFF-NET calling, 100 SMS per day & 1.5 GB of 4G Data per day for 45 days ')
+
+
+create table securityquest_team4
+(questid int primary key,
+questtext varchar(200))
+
+insert into securityquest_team4 values(1, 'What is your favourite sport ? ')
+insert into securityquest_team4 values(2, 'Which is your favourite city ? ')
+insert into securityquest_team4 values(3, 'What is your favourite food ? ')
+insert into securityquest_team4 values(4, 'What is your Fathers birth place ? ')
+insert into securityquest_team4 values(5, 'What is your Mothers maiden name ? ')
+
+select * from securityquest_team4
+
+
+create table subscriber_team4
+(suid int foreign key references register_team4(subid), 
+question1 int foreign key references securityquest_team4(questid),
+answer1 varchar(100),
+question2 int foreign key references securityquest_team4(questid),
+answer2 varchar(100),
+question3 int foreign key references securityquest_team4(questid),
+answer3 varchar(100))
+
+
+drop table register_team4
+drop table tariff_team4
+select * from register_team4
+select * from tariff_team4
+
+
+alter proc sp_register_team4
+@name varchar(50), @age int, @addr varchar(50), @city varchar(50),
+ @substate varchar(50), @simno bigint, @sid int out, @email varchar(50),@p varchar(10) ,@contact varchar(15),
+ @simtype varchar(50)
+as
+begin
+set @p=(dbo.fnPassCreator())
+insert into register_team4 (name, age, addr, city, substate, simno,dpass, emailid,contactno,status,simtype,timestamp) values (@name, @age, @addr, @city, @substate,@simno,@p,@email,@contact,'ACTIVE',@simtype,getdate());
+set @sid= @@Identity
+end
+
+
+
+create proc sp_getpass_team4
+@s bigint
+as
+begin
+select dpass from register_team4 where subid= @s
+end
+
+drop proc sp_viewsub_team4
+
+create proc sp_viewsub_team4_1
+as
+begin
+select * from register_team4 
+end
+
+create proc sp_insertariffplan_team4
+@pid int,@s int
+as
+begin
+if (select plans from register_team4 where subid=@s)=null
+begin
+update register_team4
+set plans= @pid where subid=@s;
+end
+else
+begin
+update register_team4
+set plans= CONCAT(plans,',', @pid) where subid= @s
+end
+
+
+
+create table CharacterSet
+  ( Value char(1) collate SQL_Latin1_General_CP1_CS_AS not null primary key ) ;
+ 
+insert CharacterSet values ( 'a' ) ,
+          ( 'b' ) ,
+         ( 'c' ) ,
+         ( 'd' ) ,
+         ( 'e' ) ,
+         ( 'f' ) ,
+         ( 'g' ) ,
+         ( 'A' ) ,
+         ( 'B' ) ,
+         ( 'C' ) ,
+         ( '1' ) ,
+         ( '2' ) ,
+         ( '3' )  ;
+
+ 
+select *
+from CharacterSet as cs ;
+
+select top 8
+       cs.Value as [text()]
+from
+    ( Values ('a'),
+             ('b'),
+             ('c'),
+             ('d'),
+             ('e'),
+             ('f'),
+             ('g'),
+             ('A'),
+             ('B'),
+             ('C'),
+             ('1'),
+             ('2'),
+             ('3') ) as cs(Value)
+order by NEWID()
+for xml path('') ;
+
+
+declare @String varchar(2048)    
+SET @String = 'abcdefg' +  --lower letters
+              'ABC' +      --upper letters
+              '123';       --number characters  
+select top 8
+       substring(@String, 1 + Number, 1) as [text()]
+from master..spt_values
+where number < datalength(@String)
+  and type = 'P'
+order by newid()
+for xml path('')
+
+
+
+create view vwGetNewID
+as
+select newid() as new_id
+
+create function dbo.fnPassCreator()
+returns char(8)
+as
+begin
+    declare @pass char(8)
+ 
+    declare @String varchar(2048)
+    
+    SET @String = 'abcdefg' +  --lower letters
+                  'ABC' +      --upper letters
+                  '123';       --number characters 
+    select @pass = (select top 8
+                           substring(@String, 1 + Number, 1) as [text()]
+                    from master..spt_values
+                    where number < datalength(@String)
+                      and type = 'P'
+                    order by
+                            (select new_id from vwGetNewID) --instead of using newid()
+                    for xml path('') )
+ 
+    return @pass
+end
+go
+
+alter proc sp_editsub_team4
+@name varchar(50),
+@age int,
+@addr varchar(50),
+@city varchar(50),
+@substate varchar(50),
+@e varchar(50),
+@sid bigint,
+@con varchar(15)
+
+as
+begin
+update register_team4
+set name=@name, age=@age, addr=@addr,city=@city,substate=@substate ,emailid=@e ,contactno=@con
+where subid= @sid
+end
+
+alter proc sp_delsub_team4
+@s int
+as
+begin
+delete from register_team4 where subid=@s
+delete from subplan_team4 where suid=@s
+end
+
+create proc sp_viewbysub_team4_1
+@sid bigint
+as
+begin
+select * from register_team4 where subid=@sid
+end
+ 
+create proc sp_selectsimno_team4
+@s bigint
+as
+begin
+select simno from register_team4 where subid=@s 
+end
+
+create proc sp_selectsubid
+as
+begin
+select subid from register_team4
+end
+
+create proc sp_planid_team4
+as
+begin
+select planid from tariff_team4
+end
+
+select * from subplan_team4
+select * from register_team4
+select * from tariff_team4
+
+create proc sp_viewaccount_team4
+as
+begin
+select sp.suid,rt.simno,sp.plan_id,tt.planname,tt.plancost,tt.plandetails,sp.stat,rt.timestamp from 
+((subplan_team4 sp join register_team4 rt on sp.suid= rt.subid) join tariff_team4 tt on sp.plan_id= tt.planid) 
+end
+
+alter proc sp_inactive_team4
+@p int,@s bigint
+as
+begin
+update subplan_team4
+set stat = 'Inactive' where plan_id = @p and suid=@s
+end
+
