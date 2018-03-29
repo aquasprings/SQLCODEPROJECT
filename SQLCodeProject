@@ -296,3 +296,193 @@ update subplan_team4
 set stat = 'Inactive' where plan_id = @p and suid=@s
 end
 
+//Vineela
+use db04tms170_1718
+
+select *from tbl_Login1_t4
+select * from cha_pwd
+select * from register_team4
+
+
+create proc sp_login_verify
+@userid varchar(50),
+@password varchar(50),
+@flaga int out,
+@flagb int out
+as
+begin 
+set @flaga=(select count(Userid) from tbl_Login1_t4 where Userid=@userid and Pwd=@password and Ukey=12345)
+set @flagb=(select count(Userid) from tbl_Login1_t4 where Userid=@userid and Pwd=@password and Ukey=54321)
+end
+
+
+delete from tbl_Login1_t4 where Username= 'Ankit'
+
+exec  sp_login_verify 'SE-00001','admin123',12345,0,0
+
+select count(Userid) from tbl_Login1_t4 where Userid='BE-00005' and Pwd='admin234' and Ukey=54321
+
+create proc  sp_signupcheck
+@Username varchar(50),
+@count int out,
+@cnt int out
+as
+begin
+set @count=(select count(Userid) from tbl_Login1_t4  where Username=@Username and Ukey=12345)
+set @cnt=(select count(Userid) from tbl_Login1_t4 where  Username=@Username and Ukey=54321)
+end
+
+
+
+select top(3) * from register_team4 order by  subid desc
+
+create proc sp_Loginsubs
+(@Subscriberid bigint,
+@password varchar(50),
+@flags int out)
+as
+begin
+set @flags=(select count(subid) from register_team4 where subid=@Subscriberid and dpass=@password)
+end
+
+create proc sp_fetchname_team4
+@subid bigint,
+@flag varchar(80) out
+as 
+begin
+set @flag=(select name from register_team4 where subid=@subid)
+end;
+
+select * from register_team4
+
+exec sp_fetchname 10000003
+
+select name from register_team4 where subid=10000007
+
+select count(subid) from register_team4 where subid=10000005 and dpass='ea1AfB2d'
+
+select @name=(select name from register_team4 where subid=10000005)
+
+declare @name varchar
+set @name=(select name from register_team4 where subid=10000005)
+
+select * from register_team4
+select *from cha_pwd
+
+
+
+create table cha_pwd(id int identity(1,1) primary key,sub_id int foreign key references register_team4(subid),old_pwd varchar(50),new_pwd varchar(50),
+re_enter_pwd varchar(50),sq1 varchar(100), ans1 varchar(50),sq2 varchar(100),
+ans2 varchar(50),sq3 varchar(100),ans3 varchar(50),flag varchar(50) default 'false')
+
+create proc sp_chan_pwd
+@subid int,
+@new_pwd varchar(50)
+as
+begin
+update register_team4 set dpass=@new_pwd where subid=@subid
+update  cha_pwd set flag='true' where sub_id=@subid
+end
+
+delete from cha_pwd
+
+create table sqs(sqid int identity(1,1) primary key,sq1 varchar(100),sq2 varchar(100),sq3 varchar(100))
+
+insert into sqs values('What was your childhood nickname?','What is your favorite sport?','What was the name of your elementary school?')
+insert into sqs values('What was your childhood hero?','What is your favorite movie?','What is your mothers maiden name?')
+insert into sqs values('What was the name of the hospital where you were born?','What was your favorite food as a child?','Who is your favorite actor, musician, or artist?')
+
+select *from sqs
+
+
+create proc sp_sq1
+as
+begin
+select sq1 from sqs
+end
+create proc sp_sq2
+as
+begin
+select sq2 from sqs
+end
+
+create proc sp_sq3
+as
+begin
+select sq3 from sqs
+end
+
+create proc sp_chan_add
+@subid int,
+@old_pwd varchar(50),
+@new_pwd varchar(50),
+@re_enter_pwd varchar(50),
+@sq1 varchar(100),
+@ans1 varchar(50),
+@sq2 varchar(100),
+@ans2 varchar(50),
+@sq3 varchar(100),
+@ans3 varchar(50)
+as
+begin
+insert into cha_pwd (sub_id,old_pwd,new_pwd,re_enter_pwd,sq1,ans1,sq2,ans2,sq3,ans3) 
+values(@subid,@old_pwd,@new_pwd,@re_enter_pwd,@sq1,@ans1,@sq2,@ans2,@sq3,@ans3)
+end
+drop proc sp_chan_add
+insert into cha_pwd (sub_id,old_pwd,new_pwd,re_enter_pwd,sq1,ans1,sq2,ans2,sq3,ans3) 
+values(10000008,'madhura','qwe','qwe','What was your childhood nickname?','fd','What is your favorite sport?','dfsd','What was the name of your elementary school?','sfds')
+
+create proc sp_flag
+@sub_id int
+as
+begin
+select flag from cha_pwd where sub_id=@sub_id
+end
+
+select flag from cha_pwd where sub_id=10000008
+create proc sp_sq1_forget1
+@sqid int 
+as begin
+select sq1 from cha_pwd where sub_id=@sqid
+end
+
+create proc sp_sq2_forget1
+@sqid int 
+as begin
+select sq2 from cha_pwd where sub_id=@sqid
+end
+
+create proc sp_sq3_forget1
+@sqid int 
+as begin
+select sq3 from cha_pwd where sub_id=@sqid
+end
+exec  sp_sq3_forget1 '10000003'
+drop proc sp_sq3_forget
+select * from cha_pwd
+truncate table cha_pwd
+
+select sq1 from cha_pwd where sub_id=10000003
+
+create proc sp_forgetverify
+@ans1 varchar(50),
+@ans2 varchar(50),
+@ans3 varchar(50),@subid int,@flag int out
+as begin
+set @flag=(select count(*) from cha_pwd where ans1=@ans1 and ans2=@ans2 and ans3=@ans3 and sub_id=@subid)
+end
+
+create proc sp_forgetpwdreturn
+@subid int
+as
+begin
+select new_pwd from cha_pwd where sub_id=@subid
+end
+
+select * from register_team4
+
+select * from cha_pwd
+
+select * from tbl_Login1_t4
+
+
