@@ -485,4 +485,45 @@ select * from cha_pwd
 
 select * from tbl_Login1_t4
 
+//madhura
+
+select * from tbl_Login1_t4;
+
+CREATE proc sp_inserttbl_Login1_t4
+
+(@Userid varchar(30) out,
+
+@Username varchar(50),
+
+@Pwd varchar(50),
+
+@Ukey int)
+
+as begin
+
+declare @idtemp int
+
+select @idtemp=MAX(CAST(RIGHT(Userid,5)as int)) FROM tbl_Login1_t4
+
+select @idtemp=CASE when @idtemp is NULL then 1 else @idtemp+1
+
+end
+
+if(@Ukey=12345)
+
+begin
+
+set @Userid='SE-'+RIGHT(('000000'+CAST(@idtemp as varchar(30))),5)
+
+end
+
+else if(@Ukey=54321)
+
+begin
+
+set @Userid='BE-'+RIGHT(('000000'+CAST(@idtemp as varchar(30))),5)
+
+end
+
+
 
